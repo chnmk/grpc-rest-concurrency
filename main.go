@@ -5,20 +5,13 @@ import (
 	"sync"
 
 	"github.com/chnmk/grpc-rest-concurrency/counter"
+	grpc_api "github.com/chnmk/grpc-rest-concurrency/grpc"
 	rest_api "github.com/chnmk/grpc-rest-concurrency/rest"
 )
 
-func grpc_server() {
-
-}
-
-func grpc_client() {
-
-}
-
 func main() {
 	go rest_api.Server()
-	go grpc_server()
+	go grpc_api.Server()
 
 	var wg sync.WaitGroup
 
@@ -32,16 +25,15 @@ func main() {
 		}
 	}()
 
-	/*
-		go func() {
-			defer wg.Done()
-			for range ch {
-				grpc_client()
-			}
-		}()
-	*/
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for range ch {
+			grpc_api.Client()
+		}
+	}()
 
-	for i := 0; i < 15; i++ {
+	for i := 0; i < 50; i++ {
 		ch <- i
 	}
 
